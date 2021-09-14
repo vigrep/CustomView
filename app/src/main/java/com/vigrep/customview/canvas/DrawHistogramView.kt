@@ -21,9 +21,12 @@ class DrawHistogramView(context: Context?, attrs: AttributeSet?) : View(context,
     private var originX = axisMargin
     private var originY = 0f
 
-    private var data: FloatArray = floatArrayOf(100f, 120f, 60f)
-    private val preWidth = 100f
-    private val preMargin = 100f
+    private var data: FloatArray = floatArrayOf(320f, 300f, 200f, 90f, 100f, 120f, 320f, 300f, 200f, 90f, 100f, 120f)
+    private var preWidth = 100f
+    private var preMargin = 100f
+
+    private var xAxisWidth = 100f
+    private var histogramMax = 100f
 
     init {
         paint.strokeWidth = paintStrokeWidth
@@ -41,13 +44,25 @@ class DrawHistogramView(context: Context?, attrs: AttributeSet?) : View(context,
         yEndX = originX
         yEndY = 0f
 
+        xAxisWidth = xEndX - originX
+        preWidth = xAxisWidth / data.size.toFloat()
+        preMargin = preWidth / 4.toFloat()
+
         canvas?.drawLine(originX, originY, xEndX, xEndY, paint)
         canvas?.drawLine(originX, originY, yEndX, yEndY, paint)
 
         paint.color = Color.GREEN
 
+        histogramMax = originY - yEndY
+        var maxValue = 0f
+        for (value in data) {
+            maxValue = value.coerceAtLeast(maxValue)
+        }
+
+        var ratio = if (maxValue > histogramMax) histogramMax/maxValue else 1.0f
+
         for ((index, value) in data.withIndex()) {
-            canvas?.drawRect(originX + (index+1)*preMargin + index*preWidth, value, originX + (index+1)*preMargin + index*preWidth + preWidth, originY - paintStrokeWidth/2, paint)
+            canvas?.drawRect(originX + preMargin + index*preWidth, histogramMax - value * ratio, originX + preMargin + index*preWidth + preWidth/2.toFloat(), originY - paintStrokeWidth/2, paint)
         }
     }
 
